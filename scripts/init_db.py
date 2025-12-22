@@ -1,31 +1,32 @@
 import psycopg2
-from psycopg2 import sql
 import os
 from dotenv import load_dotenv
 
 load_dotenv()
 
-def create_project_database():
-    # 1. Connect to the default 'postgres' database
+def initialize_schema():
     conn = psycopg2.connect(
-        host=os.getenv('DB_HOST'),
-        user=os.getenv('DB_USER'),
-        password=os.getenv('DB_PASS'),
-        dbname='postgres'
+        host=os.getenv("DB_HOST"),
+        port=os.getenv("DB_PORT"),
+        dbname=os.getenv("DB_NAME"),
+        user=os.getenv("DB_USER"),
+        password=os.getenv("DB_PASS")
     )
-    conn.autocommit = True 
+
     cur = conn.cursor()
 
-    # 2. Execute CREATE DATABASE
-    db_name = os.getenv('DB_NAME')
-    try:
-        cur.execute(sql.SQL("CREATE DATABASE {}").format(sql.Identifier(db_name)))
-        print(f"Success: Database '{db_name}' created.")
-    except psycopg2.errors.DuplicateDatabase:
-        print(f"Notice: Database '{db_name}' already exists.")
-    
+    # Read schema.sql
+    with open("database/schema.sql", "r") as f:
+        schema_sql = f.read()
+
+    # Execute schema
+    cur.execute(schema_sql)
+
+    conn.commit()
     cur.close()
     conn.close()
 
+    print("✅ Database schema initialized successfully")
+
 if __name__ == "__main__":
-    create_project_database()
+    initialize_schema()

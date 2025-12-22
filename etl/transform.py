@@ -1,7 +1,3 @@
-# Transform raw JSON response into structured data
-import json
-
-
 def transform_prices(raw_data):
     """
     Transform raw API response into flat, DB-ready records.
