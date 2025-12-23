@@ -2,9 +2,11 @@ import psycopg2
 import os
 from dotenv import load_dotenv
 from psycopg2.extras import execute_batch
+from logging_config import get_logger
 
 load_dotenv()
 
+logger = get_logger("load")
 
 def load_prices(records):
     """
@@ -12,17 +14,26 @@ def load_prices(records):
     Uses batch insert + UPSERT to avoid duplicates.
     """
 
+    logger.info("Starting to load data into the database")
+
+
     conn = None
     cur = None
 
     try:
-        conn = psycopg2.connect(
-            host=os.getenv("DB_HOST"),
-            port=os.getenv("DB_PORT"),
-            dbname=os.getenv("DB_NAME"),
-            user=os.getenv("DB_USER"),
-            password=os.getenv("DB_PASS")
-        )
+        try:
+            conn = psycopg2.connect(
+                host=os.getenv("DB_HOST"),
+                port=os.getenv("DB_PORT"),
+                dbname=os.getenv("DB_NAME"),
+                user=os.getenv("DB_USER"),
+                password=os.getenv("DB_PASS")
+            )
+
+        except Exception as e:
+            logger.error(f"Database connection failed: {e}", exc_info=True)
+            raise
+
         cur = conn.cursor()
 
         insert_query = """
@@ -68,19 +79,27 @@ def load_prices(records):
         values = [(r["coin"],r["usd_price"], r["pkr_price"], r["usd_market_cap"], r["pkr_market_cap"], 
         r["usd_24h_change"], r["pkr_24h_change"], r["last_updated_at"]) for r in records]
 
+        logger.info(f"Prepared {len(values)} records for insertion")
+
+        if not records:
+            logger.warning("No records to insert, skipping load")
+            return
+
         # Latest snapshot
         execute_batch(cur, insert_query, values)
+        logger.info(f"Inserted {len(values)} records into coin_prices (snapshot)")
+
 
         # Full history
         execute_batch(cur, insert_query_history, values)
-        conn.commit()
+        logger.info(f"Inserted {len(values)} records into coin_prices_history")
 
-        print("✅ Prices loaded successfully")
+        conn.commit()
 
     except Exception as e:
         if conn:
             conn.rollback()
-        print("❌ Error loading prices:", e)
+        logger.error(f"Data loading failed: {e}" , exc_info=True)
         raise
 
     finally:
