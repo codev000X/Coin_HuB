@@ -3,11 +3,15 @@ import os
 from dotenv import load_dotenv
 from psycopg2.extras import execute_batch
 from logging_config import get_logger
+from retrying_logic import retry
+
 
 load_dotenv()
 
 logger = get_logger("load")
 
+
+@retry(max_retries=5, delay=2)
 def load_prices(records):
     """
     Load transformed coin price records into PostgreSQL.

@@ -3,6 +3,7 @@ import os
 from dotenv import load_dotenv
 from pathlib import Path
 from logging_config import get_logger
+from retrying_logic import retry
 
 
 BASE_DIR = Path(__file__).resolve().parents[1]
@@ -14,7 +15,7 @@ BASE_URL = "https://api.coingecko.com/api/v3/simple/price"
 # Initializing the logger 
 logger = get_logger("extract")
 
-
+@retry(max_retries=5, delay=2)
 def get_prices(coins, vs_currencies_list = ["usd", "pkr"]):
     """
     Fetch prices for multiple coins in selected currencies and return the raw json response.

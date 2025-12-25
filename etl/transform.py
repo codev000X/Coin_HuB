@@ -1,8 +1,12 @@
 from  logging_config import get_logger
+from retrying_logic import retry
+
 
 # Initializing the logger
 logger = get_logger("transform")
 
+
+@retry(max_retries=5, delay=2)
 def transform_prices(raw_data):
     """
     Transform raw API response into flat, DB-ready records.
