@@ -23,5 +23,5 @@ if __name__ == "__main__":
         logger.info("Pipeline Ended Successfully.")
 
     except Exception as e:
-        logger.info(f"Pipeline ran into an Error: {e}")
+        logger.error(f"Pipeline ran into an Error: {e}")
         sys.exit(1)
