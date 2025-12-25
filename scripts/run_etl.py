@@ -2,6 +2,9 @@ from etl.extract import get_prices
 from etl.transform import transform_prices
 from etl.load import load_prices
 import sys
+from logging_config import get_logger
+
+logger = get_logger("run_etl")
 
 COINS = [
     "bitcoin", "ethereum", "litecoin", "bitcoin-cash", "binancecoin",
@@ -13,10 +16,12 @@ def main():
     records = transform_prices(raw_data)
     load_prices(records)
 
-    print("✅ ETL completed successfully")
 if __name__ == "__main__": 
     try:
+        logger.info("Starting the pipeline")
         main()
+        logger.info("Pipeline Ended Successfully.")
+
     except Exception as e:
-        print(f"Error: {e}")
+        logger.info(f"Pipeline ran into an Error: {e}")
         sys.exit(1)
