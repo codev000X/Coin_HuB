@@ -3,7 +3,7 @@ import os
 from dotenv import load_dotenv
 from psycopg2.extras import execute_batch
 from logging_config import get_logger
-from retrying_logic import retry
+from etl.retrying_logic import retry
 
 
 load_dotenv()

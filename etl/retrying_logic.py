@@ -1,9 +1,9 @@
 import time
-from logging import get_logger
+from logging_config import get_logger
 from functools import wraps
 
 # Use your global logger or configure one
-logger = get_logger("load")  
+logger = get_logger("retry")  
 
 def retry(max_retries=3, delay=1, exceptions=(Exception,)):
     """

@@ -3,7 +3,7 @@ import os
 from dotenv import load_dotenv
 from pathlib import Path
 from logging_config import get_logger
-from retrying_logic import retry
+from etl.retrying_logic import retry
 
 
 BASE_DIR = Path(__file__).resolve().parents[1]

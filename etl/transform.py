@@ -1,5 +1,5 @@
 from  logging_config import get_logger
-from retrying_logic import retry
+from etl.retrying_logic import retry
 
 
 # Initializing the logger
